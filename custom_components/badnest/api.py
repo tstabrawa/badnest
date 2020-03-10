@@ -109,7 +109,8 @@ class NestAPI():
         try:
             r = self._session.get(
                 f"{CAMERA_WEBAPI_BASE}/api/cameras."
-                + "get_owned_and_member_of_with_properties"
+                + "get_owned_and_member_of_with_properties",
+                headers={"Authorization": f"Basic {self._access_token}"},
             )
 
             for camera in r.json()["items"]:
