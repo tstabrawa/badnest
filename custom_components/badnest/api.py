@@ -525,7 +525,8 @@ class NestAPI():
         try:
             r = self._session.get(
                 f'{self._camera_url}/get_image?uuid={device_id}' +
-                f'&cachebuster={now}'
+                f'&cachebuster={now}',
+                headers={"cookie": f'user_token={self._access_token}'},
             )
 
             return r.content
