@@ -96,6 +96,9 @@ class NestAPI():
         r = self._session.post(url=URL_JWT, headers=headers, params=params)
         self._user_id = r.json()['claims']['subject']['nestId']['id']
         self._access_token = r.json()['jwt']
+        self._session.headers.update({
+            "Authorization": f"Basic {self._access_token}",
+        })
 
     def _login_dropcam(self):
         self._session.post(
@@ -110,7 +113,6 @@ class NestAPI():
             r = self._session.get(
                 f"{CAMERA_WEBAPI_BASE}/api/cameras."
                 + "get_owned_and_member_of_with_properties",
-                headers={"Authorization": f"Basic {self._access_token}"},
             )
 
             for camera in r.json()["items"]:
