@@ -307,7 +307,8 @@ class NestAPI():
             # Cameras
             for camera in self.cameras:
                 r = self._session.get(
-                    f"{API_URL}/dropcam/api/cameras/{camera}"
+                    f"{API_URL}/dropcam/api/cameras/{camera}",
+                    headers={"cookie": f'user_token={self._access_token}'}
                 )
                 sensor_data = r.json()[0]
                 self.device_data[camera]['name'] = \
