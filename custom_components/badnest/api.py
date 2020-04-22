@@ -52,6 +52,8 @@ class NestAPI():
         self.login()
         self._get_devices()
         self.update()
+        for camera in self.cameras:
+            self.update_camera(camera)
 
     def __getitem__(self, name):
         return getattr(self, name)
@@ -68,7 +70,6 @@ class NestAPI():
     def login(self):
         if self._issue_token and self._cookie:
             self._login_google(self._issue_token, self._cookie)
-        self._login_dropcam()
 
     def _login_google(self, issue_token, cookie):
         headers = {
@@ -99,12 +100,6 @@ class NestAPI():
         self._session.headers.update({
             "Authorization": f"Basic {self._access_token}",
         })
-
-    def _login_dropcam(self):
-        self._session.post(
-            f"{API_URL}/dropcam/api/login",
-            data={"access_token": self._access_token}
-        )
 
     def _get_cameras(self):
         cameras = []
@@ -179,6 +174,36 @@ class NestAPI():
             return "Emergency"
         else:
             return "Unknown"
+
+    def update_camera(self, camera):
+        try:
+            r = self._session.get(
+                f"{API_URL}/dropcam/api/cameras/{camera}",
+                headers={"cookie": f'user_token={self._access_token}'}
+            )
+            sensor_data = r.json()[0]
+            self.device_data[camera]['name'] = \
+                sensor_data["name"]
+            self.device_data[camera]['is_online'] = \
+                sensor_data["is_online"]
+            self.device_data[camera]['is_streaming'] = \
+                sensor_data["is_streaming"]
+            self.device_data[camera]['battery_voltage'] = \
+                sensor_data["rq_battery_battery_volt"]
+            self.device_data[camera]['ac_voltage'] = \
+                sensor_data["rq_battery_vbridge_volt"]
+            self.device_data[camera]['location'] = \
+                sensor_data["location"]
+            self.device_data[camera]['data_tier'] = \
+                sensor_data["properties"]["streaming.data-usage-tier"]
+        except requests.exceptions.RequestException as e:
+            _LOGGER.error(e)
+            _LOGGER.error('Failed to update, trying again')
+            self.update_camera(camera)
+        except KeyError:
+            _LOGGER.debug('Failed to update, trying to log in again')
+            self.login()
+            self.update_camera(camera)
 
     def update(self):
         try:
@@ -303,28 +328,6 @@ class NestAPI():
                         sensor_data['current_temperature']
                     self.device_data[sn]['battery_level'] = \
                         sensor_data['battery_level']
-
-            # Cameras
-            for camera in self.cameras:
-                r = self._session.get(
-                    f"{API_URL}/dropcam/api/cameras/{camera}",
-                    headers={"cookie": f'user_token={self._access_token}'}
-                )
-                sensor_data = r.json()[0]
-                self.device_data[camera]['name'] = \
-                    sensor_data["name"]
-                self.device_data[camera]['is_online'] = \
-                    sensor_data["is_online"]
-                self.device_data[camera]['is_streaming'] = \
-                    sensor_data["is_streaming"]
-                self.device_data[camera]['battery_voltage'] = \
-                    sensor_data["rq_battery_battery_volt"]
-                self.device_data[camera]['ac_voltage'] = \
-                    sensor_data["rq_battery_vbridge_volt"]
-                self.device_data[camera]['location'] = \
-                    sensor_data["location"]
-                self.device_data[camera]['data_tier'] = \
-                    sensor_data["properties"]["streaming.data-usage-tier"]
         except requests.exceptions.RequestException as e:
             _LOGGER.error(e)
             _LOGGER.error('Failed to update, trying again')
