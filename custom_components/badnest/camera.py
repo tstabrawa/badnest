@@ -69,7 +69,6 @@ class NestCamera(Camera):
 
     @property
     def is_recording(self):
-        return True
         """Return true if the device is recording."""
         return self._device.device_data[self._uuid]['is_streaming']
 
