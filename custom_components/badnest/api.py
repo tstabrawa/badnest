@@ -1,6 +1,8 @@
 import logging
-
 import requests
+
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 
 API_URL = "https://home.nest.com"
 CAMERA_WEBAPI_BASE = "https://webapi.camera.home.nest.com"
@@ -36,11 +38,15 @@ class NestAPI():
         self._wheres = {}
         self._user_id = user_id
         self._access_token = access_token
+        self._retries = Retry(total=3, backoff_factor=0.5)
+        self._adapter = HTTPAdapter(max_retries=self._retries)
         self._session = requests.Session()
         self._session.headers.update({
             "Referer": "https://home.nest.com/",
             "User-Agent": USER_AGENT,
         })
+        self._session.mount("https://", self._adapter)
+        self._session.mount("http://", self._adapter)
         self._issue_token = issue_token
         self._cookie = cookie
         self._czfe_url = None
