@@ -3,7 +3,8 @@ import voluptuous as vol
 from homeassistant.helpers import config_validation as cv
 
 from .api import NestAPI
-from .const import DOMAIN, CONF_ISSUE_TOKEN, CONF_COOKIE, CONF_USER_ID, CONF_ACCESS_TOKEN, CONF_REGION
+from .const import DOMAIN, CONF_ISSUE_TOKEN, CONF_COOKIE, CONF_USER_ID, \
+        CONF_ACCESS_TOKEN, CONF_REGION
 
 CONFIG_SCHEMA = vol.Schema(
     {
@@ -33,8 +34,6 @@ def setup(hass, config):
         cookie = config[DOMAIN].get(CONF_COOKIE)
         region = config[DOMAIN].get(CONF_REGION)
     else:
-        email = None
-        password = None
         issue_token = None
         cookie = None
         region = None

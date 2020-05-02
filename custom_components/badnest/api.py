@@ -164,7 +164,6 @@ class NestAPI():
             self.login()
             return self.get_devices()
 
-
     def _map_nest_protect_state(self, value):
         if value == 0:
             return "Ok"
@@ -311,9 +310,11 @@ class NestAPI():
                     self.device_data[sn]['co_status'] = \
                         self._map_nest_protect_state(sensor_data['co_status'])
                     self.device_data[sn]['smoke_status'] = \
-                        self._map_nest_protect_state(sensor_data['smoke_status'])
+                        self._map_nest_protect_state(
+                                sensor_data['smoke_status'])
                     self.device_data[sn]['battery_health_state'] = \
-                        self._map_nest_protect_state(sensor_data['battery_health_state'])
+                        self._map_nest_protect_state(
+                                sensor_data['battery_health_state'])
                 # Temperature sensors
                 elif bucket["object_key"].startswith(
                         f"kryptonite.{sn}"):
@@ -516,13 +517,15 @@ class NestAPI():
         if device_id not in self.cameras:
             return
 
-        return self._camera_set_properties(device_id, "streaming.enabled", "false")
+        return self._camera_set_properties(
+                device_id, "streaming.enabled", "false")
 
     def camera_turn_on(self, device_id):
         if device_id not in self.cameras:
             return
 
-        return self._camera_set_properties(device_id, "streaming.enabled", "true")
+        return self._camera_set_properties(
+                device_id, "streaming.enabled", "true")
 
     def camera_get_image(self, device_id, now):
         if device_id not in self.cameras:
