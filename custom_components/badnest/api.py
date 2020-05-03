@@ -11,6 +11,20 @@ USER_AGENT = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_5) " \
              "Chrome/75.0.3770.100 Safari/537.36"
 URL_JWT = "https://nestauthproxyservice-pa.googleapis.com/v1/issue_jwt"
 
+RETRY_NUM = 5
+RETRY_BACKOFF = 0.5
+RETRY_METHODS = frozenset(
+    [
+        'HEAD',
+        'TRACE',
+        'GET',
+        'PUT',
+        'OPTIONS',
+        'DELETE',
+        'POST'
+    ]
+)
+
 # Nest website's (public) API key
 NEST_API_KEY = "AIzaSyAdkSIMNc51XGNEAYWasX9UOWkS5P6sZE4"
 
@@ -38,7 +52,11 @@ class NestAPI():
         self._wheres = {}
         self._user_id = user_id
         self._access_token = access_token
-        self._retries = Retry(total=3, backoff_factor=0.5)
+        self._retries = Retry(
+            total=RETRY_NUM,
+            backoff_factor=RETRY_BACKOFF,
+            method_whitelist=RETRY_METHODS
+        )
         self._adapter = HTTPAdapter(max_retries=self._retries)
         self._session = requests.Session()
         self._session.headers.update({
