@@ -3,6 +3,7 @@ import requests
 
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+from requests.exceptions import HTTPError, RequestException
 
 API_URL = "https://home.nest.com"
 CAMERA_WEBAPI_BASE = "https://webapi.camera.home.nest.com"
@@ -204,6 +205,16 @@ class NestAPI():
                 f"{API_URL}/dropcam/api/cameras/{camera}",
                 headers={"cookie": f'user_token={self._access_token}'}
             )
+
+            if r.status_code == 403:
+                self.login()
+                r = self._session.get(
+                    f"{API_URL}/dropcam/api/cameras/{camera}",
+                    headers={"cookie": f'user_token={self._access_token}'}
+                )
+
+            r.raise_for_status()
+
             sensor_data = r.json()[0]
             self.device_data[camera]['name'] = \
                 sensor_data["name"]
@@ -219,10 +230,9 @@ class NestAPI():
                 sensor_data["location"]
             self.device_data[camera]['data_tier'] = \
                 sensor_data["properties"]["streaming.data-usage-tier"]
-        except requests.exceptions.RequestException as e:
+        except (HTTPError, RequestException) as e:
+            _LOGGER.error('Upstream error trying to update camera %s', camera)
             _LOGGER.error(e)
-            _LOGGER.error('Failed to update, trying again')
-            self.update_camera(camera)
         except KeyError:
             _LOGGER.debug('Failed to update, trying to log in again')
             self.login()
@@ -230,6 +240,7 @@ class NestAPI():
 
     def update(self):
         try:
+            self.login()
             # To get friendly names
             r = self._session.post(
                 f"{API_URL}/api/0.1/user/{self._user_id}/app_launch",
@@ -239,6 +250,7 @@ class NestAPI():
                 },
                 headers={"Authorization": f"Basic {self._access_token}"},
             )
+            r.raise_for_status()
 
             for bucket in r.json()["updated_buckets"]:
                 sensor_data = bucket["value"]
@@ -257,6 +269,7 @@ class NestAPI():
                 },
                 headers={"Authorization": f"Basic {self._access_token}"},
             )
+            r.raise_for_status()
 
             for bucket in r.json()["updated_buckets"]:
                 sensor_data = bucket["value"]
@@ -353,10 +366,9 @@ class NestAPI():
                         sensor_data['current_temperature']
                     self.device_data[sn]['battery_level'] = \
                         sensor_data['battery_level']
-        except requests.exceptions.RequestException as e:
+        except (HTTPError, RequestException) as e:
+            _LOGGER.error('Update failed')
             _LOGGER.error(e)
-            _LOGGER.error('Failed to update, trying again')
-            self.update()
         except KeyError:
             _LOGGER.debug('Failed to update, trying to log in again')
             self.login()
