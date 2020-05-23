@@ -205,6 +205,14 @@ class NestAPI():
                 f"{API_URL}/dropcam/api/cameras/{camera}",
                 headers={"cookie": f'user_token={self._access_token}'}
             )
+
+            if r.status_code == 403:
+                self.login()
+                r = self._session.get(
+                    f"{API_URL}/dropcam/api/cameras/{camera}",
+                    headers={"cookie": f'user_token={self._access_token}'}
+                )
+
             r.raise_for_status()
 
             sensor_data = r.json()[0]
@@ -223,7 +231,7 @@ class NestAPI():
             self.device_data[camera]['data_tier'] = \
                 sensor_data["properties"]["streaming.data-usage-tier"]
         except (HTTPError, RequestException) as e:
-            _LOGGER.error('Upstream error trying to update %s', camera)
+            _LOGGER.error('Upstream error trying to update camera %s', camera)
             _LOGGER.error(e)
         except KeyError:
             _LOGGER.debug('Failed to update, trying to log in again')
