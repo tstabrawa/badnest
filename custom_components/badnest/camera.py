@@ -65,7 +65,8 @@ class NestCamera(Camera):
     @property
     def is_on(self):
         """Return true if on."""
-        return self._device.device_data[self._uuid]['is_online']
+        return (self._device.device_data[self._uuid]['is_online'] and
+                self._device.device_data[self._uuid]['is_streaming'])
 
     @property
     def is_recording(self):
@@ -100,7 +101,7 @@ class NestCamera(Camera):
     def camera_image(self):
         """Return a still image response from the camera."""
         now = utcnow()
-        if self._ready_for_snapshot(now) or True:
+        if self._ready_for_snapshot(now):
             image = self._device.camera_get_image(self._uuid, now)
 
             self._next_snapshot_at = now + self._time_between_snapshots
