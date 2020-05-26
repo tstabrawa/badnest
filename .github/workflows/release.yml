@@ -1,6 +1,10 @@
-name: Release uploader
+name: Release
 
-on: release
+on:
+  release:
+    types:
+    - publish
+
 
 jobs:
   upload_release:
@@ -8,10 +12,15 @@ jobs:
     steps:
       - name: Pull source
         uses: actions/checkout@v1
-      - name: Package up a release
-        run: zip -r badnest.zip hacs.json info.md custom_components
-      - uses: JasonEtco/upload-to-release@master
+      - name: Zip up release
+        run: |
+          zip badnest.zip -r ./
+        working-directory: custom_components/badnest
+      - name: Upload zip to release
+        uses: svenstaro/upload-release-action@v1-release
         with:
-          args: badnest.zip application/zip
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ${{ github.workspace }}/custom_components/badnest/badnest.zip
+          asset_name: badnest.zip
+          tag: ${{ github.ref }}
+          overwrite: true
