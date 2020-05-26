@@ -66,7 +66,7 @@ class Decorators(object):
             try:
                 func(*args, **kwargs)
             except AuthorizationRequired:
-                _LOGGER.info('Refreshing login from decorator')
+                _LOGGER.debug('Refreshing login info')
                 args[0].login()
                 func(*args, **kwargs)
             except (HTTPError, RetryError) as e:
