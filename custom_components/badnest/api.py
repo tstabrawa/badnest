@@ -112,9 +112,9 @@ class NestAPI():
         self._czfe_url = None
         self._camera_url = f'https://nexusapi-{region}1.camera.home.nest.com'
         self.cameras = []
-        self.thermostats = []
-        self.temperature_sensors = []
-        self.protects = []
+        self.thermostats = set()
+        self.temperature_sensors = set()
+        self.protects = set()
         self.login()
         self._get_devices()
         self.update()
@@ -209,16 +209,16 @@ class NestAPI():
         for bucket in buckets:
             if bucket.startswith('topaz.'):
                 sn = bucket.replace('topaz.', '')
-                self.protects.append(sn)
+                self.protects.add(sn)
                 self.device_data[sn] = {}
             elif bucket.startswith('kryptonite.'):
                 sn = bucket.replace('kryptonite.', '')
-                self.temperature_sensors.append(sn)
+                self.temperature_sensors.add(sn)
                 self.device_data[sn] = {}
             elif bucket.startswith('device.'):
                 sn = bucket.replace('device.', '')
-                self.thermostats.append(sn)
-                self.temperature_sensors.append(sn)
+                self.thermostats.add(sn)
+                self.temperature_sensors.add(sn)
                 self.device_data[sn] = {}
 
         self.cameras = self._get_cameras()
