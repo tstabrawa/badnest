@@ -14,7 +14,10 @@ jobs:
   validate:
     runs-on: "ubuntu-latest"
     steps:
-    - uses: "actions/checkout@v2"
+    - name: Code checkout
+      uses: "actions/checkout@v2"
+    - name: Hassfest validation
+      uses: "home-assistant/actions/hassfest@master"
     - name: HACS validation
       uses: "hacs/integration/action@master"
       with:
