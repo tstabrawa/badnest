@@ -25,8 +25,6 @@ will never be as reliable as the original API
 ## Drawbacks
 
 - Tested with a single thermostat, I have no other devices to test with
-- Camera integration is untested by me
-- Nest Protect integration is untested by me
 - Nest could change their webapp api at any time, making this defunct (this has
   happened before, see <https://github.com/USA-RedDragon/badnest/issues/67>)
 
@@ -35,32 +33,6 @@ will never be as reliable as the original API
 The camera's region is one of `us` or `eu` depending on your region.
 If you're not in the US or EU, you should be able to add your
 two-character country code, and it should work.
-
-### Example configuration.yaml - When you're not using the Google Auth Login
-
-Google recently introduced reCAPTCHA when logging to Nest. That means username
-and password cannot be used directly any more. Instead, you have to obtain
-`user_id` and `access_token` for your account by logging in manually. To do that,
-open developer tools in your browser, switch to the "Network" tab, log in to Nest
-and look for the request similar to `https://home.nest.com/session?_=1578693398448`.
-You will find `user_id` and `access_token` in the response to the request.
-
-```yaml
-badnest:
-  user_id: 11111
-  access_token: !secret nest_access_token
-  region: us
-
-climate:
-  - platform: badnest
-    scan_interval: 10
-
-camera:
-  - platform: badnest
-
-sensor:
-  - platform: badnest
-```
 
 ### Example configuration.yaml - When you are using the Google Auth Login
 
@@ -100,9 +72,9 @@ you stay logged into your Google Account).
 8. In the 'Filter' box, enter `oauth2/iframe`
 9. Several network calls will appear in the Dev Tools window. Click on the last `iframe` call.
 10. In the Headers tab, under Request Headers, copy the entire `cookie`
-    (beginning `OCAK=...` - **include the whole string which is several lines
-    long and has many field/value pairs** - do not include the `cookie:` name).
-    This is your `"cookie"` in `configuration.yaml`.
+    ( **include the whole string which is several lines long and has many
+    field/value pairs** - do not include the `cookie:` name).  This is your
+    `"cookie"` in `configuration.yaml`.
 
 ## Notes
 
