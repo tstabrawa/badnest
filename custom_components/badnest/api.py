@@ -66,11 +66,11 @@ class Decorators(object):
             try:
                 func(*args, **kwargs)
             except AuthorizationRequired:
-                _LOGGER.debug('Refreshing login info')
+                _LOGGER.debug("Refreshing login info")
                 args[0].login()
                 func(*args, **kwargs)
             except (HTTPError, RetryError) as e:
-                _LOGGER.error('Upstream error: ' + e)
+                _LOGGER.error(f"Upstream error: {e}")
             except RequestException as e:
                 _LOGGER.error(e)
             return func(*args, **kwargs)
@@ -83,14 +83,12 @@ class AuthorizationRequired(Exception):
 
 class NestAPI():
     def __init__(self,
-                 user_id,
-                 access_token,
                  issue_token,
                  cookie):
         self.device_data = {}
         self._wheres = {}
-        self._user_id = user_id
-        self._access_token = access_token
+        self._user_id = None
+        self._access_token = None
         self._retries = Retry(
             total=RETRY_NUM,
             backoff_factor=RETRY_BACKOFF,
@@ -138,18 +136,21 @@ class NestAPI():
         r.raise_for_status()
 
     def login(self):
-        if self._issue_token and self._cookie:
-            self._login_google(self._issue_token, self._cookie)
-
-    def _login_google(self, issue_token, cookie):
         headers = {
             'User-Agent': USER_AGENT,
             'Sec-Fetch-Mode': 'cors',
             'X-Requested-With': 'XmlHttpRequest',
             'Referer': 'https://accounts.google.com/o/oauth2/iframe',
-            'cookie': cookie
+            'cookie': self._cookie
         }
-        r = self._session.get(url=issue_token, headers=headers)
+        try:
+            r = self._session.get(url=self._issue_token, headers=headers)
+            r.raise_for_status()
+        except (HTTPError, RetryError) as e:
+            _LOGGER.error(f"Upstream error: {e}")
+        except RequestException as e:
+            _LOGGER.error(e)
+
         access_token = r.json()['access_token']
 
         headers = {
@@ -164,9 +165,17 @@ class NestAPI():
             "google_oauth_access_token": access_token,
             "policy_id": 'authproxy-oauth-policy'
         }
-        r = self._session.post(url=URL_JWT, headers=headers, params=params)
+        try:
+            r = self._session.post(url=URL_JWT, headers=headers, params=params)
+            r.raise_for_status()
+        except (HTTPError, RetryError) as e:
+            _LOGGER.error(f"Upstream error: {e}")
+        except RequestException as e:
+            _LOGGER.error(e)
+
         self._user_id = r.json()['claims']['subject']['nestId']['id']
         self._access_token = r.json()['jwt']
+
         self._session.headers.update({
             "Authorization": f"Basic {self._access_token}",
             "cookie": f'user_token={self._access_token}',

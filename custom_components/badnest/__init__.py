@@ -10,10 +10,6 @@ CONFIG_SCHEMA = vol.Schema(
     {
         DOMAIN: vol.All(
             {
-                vol.Required(CONF_USER_ID, default=""): cv.string,
-                vol.Required(CONF_ACCESS_TOKEN, default=""): cv.string,
-            },
-            {
                 vol.Required(CONF_ISSUE_TOKEN, default=""): cv.string,
                 vol.Required(CONF_COOKIE, default=""): cv.string,
             }
@@ -26,8 +22,6 @@ CONFIG_SCHEMA = vol.Schema(
 def setup(hass, config):
     """Set up the badnest component."""
     if config.get(DOMAIN) is not None:
-        user_id = config[DOMAIN].get(CONF_USER_ID)
-        access_token = config[DOMAIN].get(CONF_ACCESS_TOKEN)
         issue_token = config[DOMAIN].get(CONF_ISSUE_TOKEN)
         cookie = config[DOMAIN].get(CONF_COOKIE)
     else:
@@ -36,8 +30,6 @@ def setup(hass, config):
 
     hass.data[DOMAIN] = {
         'api': NestAPI(
-            user_id,
-            access_token,
             issue_token,
             cookie,
         ),
