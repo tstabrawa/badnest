@@ -86,8 +86,7 @@ class NestAPI():
                  user_id,
                  access_token,
                  issue_token,
-                 cookie,
-                 region):
+                 cookie):
         self.device_data = {}
         self._wheres = {}
         self._user_id = user_id
@@ -110,7 +109,6 @@ class NestAPI():
         self._issue_token = issue_token
         self._cookie = cookie
         self._czfe_url = None
-        self._camera_url = f'https://nexusapi-{region}1.camera.home.nest.com'
         self.cameras = []
         self.thermostats = set()
         self.temperature_sensors = set()
@@ -188,7 +186,8 @@ class NestAPI():
         for camera in r.json()["items"]:
             cameras.append(camera['uuid'])
             self.device_data[camera['uuid']] = {}
-
+            self.device_data[camera['uuid']]['camera_url'] = \
+                camera['nexus_api_nest_domain_host']
         return cameras
 
     @Decorators.refresh_login
@@ -532,7 +531,7 @@ class NestAPI():
             return
 
         r = self._session.get(
-            f'{self._camera_url}/get_image?uuid={device_id}' +
+            f'https://{self.device_data[device_id]['camera_url']}/get_image?uuid={device_id}' +
             f'&cachebuster={now}',
         )
 
