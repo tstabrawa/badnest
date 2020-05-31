@@ -530,8 +530,10 @@ class NestAPI():
         if device_id not in self.cameras:
             return
 
+        camera_url = self.device_data[device_id]['camera_url']
+
         r = self._session.get(
-            f'https://{self.device_data[device_id]['camera_url']}/get_image?uuid={device_id}' +
+            f'https://{camera_url}/get_image?uuid={device_id}' +
             f'&cachebuster={now}',
         )
 
