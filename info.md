@@ -30,17 +30,12 @@ will never be as reliable as the original API
 
 ## Configuration
 
-The camera's region is one of `us` or `eu` depending on your region.
-If you're not in the US or EU, you should be able to add your
-two-character country code, and it should work.
-
 ### Example configuration.yaml - When you are using the Google Auth Login
 
 ```yaml
 badnest:
   issue_token: "https://accounts.google.com/o/oauth2/iframerpc....."
   cookie: "OCAK=......"
-  region: us
 
 climate:
   - platform: badnest
