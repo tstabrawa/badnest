@@ -35,7 +35,7 @@ will never be as reliable as the original API
 ```yaml
 badnest:
   issue_token: "https://accounts.google.com/o/oauth2/iframerpc....."
-  cookie: "OCAK=......"
+  cookie: "......"
 
 climate:
   - platform: badnest
