@@ -3,8 +3,7 @@ import voluptuous as vol
 from homeassistant.helpers import config_validation as cv
 
 from .api import NestAPI
-from .const import DOMAIN, CONF_ISSUE_TOKEN, CONF_COOKIE, CONF_USER_ID, \
-        CONF_ACCESS_TOKEN
+from .const import DOMAIN, CONF_ISSUE_TOKEN, CONF_COOKIE
 
 CONFIG_SCHEMA = vol.Schema(
     {

@@ -111,6 +111,7 @@ class NestAPI():
         self.thermostats = set()
         self.temperature_sensors = set()
         self.protects = set()
+
         self.login()
         self._get_devices()
         self.update()
@@ -151,7 +152,13 @@ class NestAPI():
         except RequestException as e:
             _LOGGER.error(e)
 
-        access_token = r.json()['access_token']
+        try:
+            access_token = r.json()['access_token']
+        except KeyError:
+            _LOGGER.error(f"{r.json()['error']}: {r.json()['detail']}")
+            _LOGGER.error("Invalid cookie or issue_token. Please see:")
+            _LOGGER.error("https://github.com/mattsch/badnest#configuration")
+            raise
 
         headers = {
             'User-Agent': USER_AGENT,
