@@ -1,7 +1,14 @@
 """Demo platform that offers a fake climate device."""
 from datetime import datetime
-import logging
 
+import asyncio
+
+import logging
+import voluptuous as vol
+from homeassistant.helpers import config_validation as cv
+
+
+from homeassistant.helpers import config_validation as cv, entity_platform
 try:
     from homeassistant.components.climate import ClimateEntity
 except ImportError:
@@ -80,7 +87,14 @@ async def async_setup_platform(hass,
         thermostats.append(NestClimate(thermostat, api))
 
     async_add_entities(thermostats)
-
+    platform = entity_platform.current_platform.get()
+    platform.async_register_entity_service(
+        "set_active_sensor",
+        {
+            vol.Required('sensor'): cv.string,
+        },
+        "custom_set_active_sensor",
+    )
 
 class NestClimate(ClimateEntity):
     """Representation of a Nest climate device."""
@@ -279,6 +293,16 @@ class NestClimate(ClimateEntity):
                     self.device_id,
                     temp,
                 )
+    def set_active_sensor(self, sensor):
+        sensor_id=None
+        if sensor != "" :
+            entity_registry = asyncio.run(self.hass.helpers.entity_registry.async_get_registry())
+            sensor_entity = entity_registry.async_get(sensor)
+            sensor_id = sensor_entity.unique_id
+        self.device.thermostat_set_active_sensor(
+            self.device_id,
+            sensor_id,
+        )
 
     def set_humidity(self, humidity):
         """Set new target humidity."""
@@ -328,3 +352,6 @@ class NestClimate(ClimateEntity):
     def update(self):
         """Updates data"""
         self.device.update()
+    
+    def custom_set_active_sensor(entity, **kwargs):
+        entity.set_active_sensor(kwargs['sensor'])
