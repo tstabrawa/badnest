@@ -83,12 +83,14 @@ class AuthorizationRequired(Exception):
 
 class NestAPI():
     def __init__(self,
+                 user_id,
+                 access_token,
                  issue_token,
                  cookie):
         self.device_data = {}
         self._wheres = {}
-        self._user_id = None
-        self._access_token = None
+        self._user_id = user_id
+        self._access_token = access_token
         self._retries = Retry(
             total=RETRY_NUM,
             backoff_factor=RETRY_BACKOFF,
@@ -137,6 +139,18 @@ class NestAPI():
         r.raise_for_status()
 
     def login(self):
+        if self._user_id and self._access_token:
+            self._login_dropcam()
+        else:
+            self._login_google()
+
+    def _login_dropcam(self):
+        self._session.post(
+            f"{API_URL}/dropcam/api/login",
+            data={"access_token": self._access_token}
+        )
+
+    def _login_google(self):
         headers = {
             'User-Agent': USER_AGENT,
             'Sec-Fetch-Mode': 'cors',
