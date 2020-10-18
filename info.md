@@ -71,6 +71,35 @@ you stay logged into your Google Account).
     field/value pairs** - do not include the `cookie:` name).  This is your
     `"cookie"` in `configuration.yaml`.
 
+### Example configuration.yaml - When you are using the Nest Login
+
+```yaml
+badnest:
+  user_id: 1234567
+  access_token: "....."
+
+climate:
+  - platform: badnest
+    scan_interval: 10
+
+camera:
+  - platform: badnest
+
+sensor:
+  - platform: badnest
+```
+
+The values of `"user_id"` and `"access_token"` are specific to your Nest account.
+To get them, follow these steps:
+
+1. Open <https://home.nest.com> in Chrome.
+2. Open Developer Tools (View/Developer/Developer Tools).
+3. Click on 'Network' tab. Make sure 'Preserve Log' is checked.
+4. In the 'Filter' box, enter `session`
+5. Log into your account using your Nest login
+6. One network call (beginning with `session?_=`) will appear in the Dev Tools window.  Click on it.
+7. In the Response tab, find your `access_token` and `user_id` from the JSON response.
+
 ## Notes
 
 The target temperature reported by the integration sometimes _seems_ to be
