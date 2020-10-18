@@ -145,10 +145,29 @@ class NestAPI():
             self._login_google()
 
     def _login_dropcam(self):
-        self._session.post(
-            f"{API_URL}/dropcam/api/login",
-            data={"access_token": self._access_token}
-        )
+        try:
+            r = self._session.post(
+                f"{API_URL}/dropcam/api/login",
+                data={"access_token": self._access_token}
+            )
+            r.raise_for_status()
+        except (HTTPError, RetryError) as e:
+            _LOGGER.error(f"Upstream error: {e}")
+        except RequestException as e:
+            _LOGGER.error(e)
+
+        try:
+            session = r.json()[0]['session_token']
+        except KeyError:
+            _LOGGER.error(f"{r.json()}")
+            _LOGGER.error("Invalid access_token.  Please see:")
+            _LOGGER.error("https://github.com/mattsch/badnest#configuration")
+            raise
+
+        self._session.headers.update({
+            "Authorization": f"Basic {self._access_token}",
+            "cookie": f"user_token={self._access_token}; website_2={session}",
+        })
 
     def _login_google(self):
         headers = {
@@ -199,7 +218,7 @@ class NestAPI():
 
         self._session.headers.update({
             "Authorization": f"Basic {self._access_token}",
-            "cookie": f'user_token={self._access_token}',
+            "cookie": f"user_token={self._access_token}",
         })
 
     @Decorators.refresh_login
