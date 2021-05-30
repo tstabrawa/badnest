@@ -12,13 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Pull source
-        uses: actions/checkout@v1
+        uses: actions/checkout@v2
       - name: Zip up release
         run: |
           zip badnest.zip -r ./
         working-directory: custom_components/badnest
       - name: Upload zip to release
-        uses: svenstaro/upload-release-action@v1-release
+        uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           file: ${{ github.workspace }}/custom_components/badnest/badnest.zip

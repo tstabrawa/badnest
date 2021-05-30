@@ -98,7 +98,8 @@ To get them, follow these steps:
 4. In the 'Filter' box, enter `session`
 5. Log into your account using your Nest login
 6. One network call (beginning with `session?_=`) will appear in the Dev Tools window.  Click on it.
-7. In the Response tab, find your `access_token` and `user_id` from the JSON response.
+7. In the Response tab, find your `access_token` and `userid` from the JSON response. The `userid` value should be used
+   for the `"user_id"` configuration value.
 
 ## Notes
 
