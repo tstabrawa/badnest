@@ -1,9 +1,22 @@
 set_active_sensor:
-  description: Changes the active sensor for your Nest thermostat
+  name: Set active sensor
+  description: Changes the active temperature sensor for your Nest thermostat.
   fields:
-    entity_id: 
-        description: The thermostat to operate on
-        example: "climate.nest"
+    entity_id:
+      name: Nest Thermostat
+      description: The Nest thermostat to operate on.
+      example: climate.nest
+      required: true
+      selector:
+        entity:
+          domain: climate
+          integration: badnest
     sensor:
-        description: The Nest temperature sensor to use instead of the one in the thermostat.  Set to "" to go back to the thermostat
-        example: "sensor.bedroom_nest_sensor | \"\""
+      name: Nest Sensor
+      description: The Nest temperature sensor to use as the active sensor.
+      example: sensor.bedroom_nest_sensor
+      required: true
+      selector:
+        entity:
+          domain: sensor
+          integration: badnest

@@ -292,10 +292,17 @@ class NestClimate(ClimateEntity):
                     self.device_id,
                     temp,
                 )
+
     def set_active_sensor(self, sensor):
-        sensor_id=None
-        if sensor != "" :
-            entity_registry = asyncio.run(self.hass.helpers.entity_registry.async_get_registry())
+        """
+        Set thermostat's active temperature sensor.
+        An empty ("") sensor input defaults the active sensor to being the thermostat's sensor.
+        """
+        sensor_id = None
+        if sensor != "":
+            entity_registry = asyncio.run(
+                self.hass.helpers.entity_registry.async_get_registry()
+            )
             sensor_entity = entity_registry.async_get(sensor)
             sensor_id = sensor_entity.unique_id
         self.device.thermostat_set_active_sensor(
@@ -351,6 +358,6 @@ class NestClimate(ClimateEntity):
     def update(self):
         """Updates data"""
         self.device.update()
-    
+
     def custom_set_active_sensor(entity, **kwargs):
         entity.set_active_sensor(kwargs['sensor'])

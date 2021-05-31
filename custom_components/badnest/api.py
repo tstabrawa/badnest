@@ -442,32 +442,33 @@ class NestAPI():
         if t_device_id not in self.thermostats:
             _LOGGER.warning("Unknown t-stat id: {0}".format(t_device_id))
             return
-        if s_device_id is None: 
+        if s_device_id is None or t_device_id == s_device_id:
             value = {
                 "active_rcs_sensors": [],
                 "rcs_control_setting": "OFF",
             }
-        else :
+        else:
             if s_device_id not in self.temperature_sensors:
                 _LOGGER.warning("Unknown Sensor ID: '{0}'".format(s_device_id))
                 return
             value = {
-                "active_rcs_sensors": [ f'kryptonite.{s_device_id}'],
+                "active_rcs_sensors": [f"kryptonite.{s_device_id}"],
                 "rcs_control_setting": "OVERRIDE",
             }
         r = self._session.post(
-            f'{self._czfe_url}/v5/put',
+            f"{self._czfe_url}/v5/put",
             json={
                 "objects": [
                     {
-                        "object_key": f'rcs_settings.{t_device_id}',
+                        "object_key": f"rcs_settings.{t_device_id}",
                         "op": "MERGE",
                         "value": value,
                     }
-                ]            }
+                ]
+            },
         )
         self._check_request(r)
-        
+
     @Decorators.refresh_login
     def thermostat_set_temperature(self, device_id, temp, temp_high=None):
         if device_id not in self.thermostats:
