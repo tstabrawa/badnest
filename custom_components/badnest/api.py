@@ -64,16 +64,16 @@ class Decorators(object):
         @wraps(func)
         def wrapper(*args, **kwargs):
             try:
-                func(*args, **kwargs)
+                return func(*args, **kwargs)
             except AuthorizationRequired:
                 _LOGGER.debug("Refreshing login info")
                 args[0].login()
-                func(*args, **kwargs)
+                return func(*args, **kwargs)
             except (HTTPError, RetryError) as e:
                 _LOGGER.error(f"Upstream error: {e}")
             except RequestException as e:
                 _LOGGER.error(e)
-            return func(*args, **kwargs)
+            return None
         return wrapper
 
 
