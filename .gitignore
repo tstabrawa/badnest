@@ -89,6 +89,9 @@ ENV/
 # Rope project settings
 .ropeproject
 
+# Editor temporary files
+.*.swp
+
 .vscode/
 .DS_Store
 

@@ -91,6 +91,10 @@ class NestAPI():
         self._wheres = {}
         self._user_id = user_id
         self._access_token = access_token
+        if self._user_id and self._access_token:
+            self._use_login_dropcam = True
+        else:
+            self._use_login_dropcam = False
         self._retries = Retry(
             total=RETRY_NUM,
             backoff_factor=RETRY_BACKOFF,
@@ -139,7 +143,7 @@ class NestAPI():
         r.raise_for_status()
 
     def login(self):
-        if self._user_id and self._access_token:
+        if self._use_login_dropcam:
             self._login_dropcam()
         else:
             self._login_google()
