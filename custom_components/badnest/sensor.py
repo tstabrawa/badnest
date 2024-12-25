@@ -1,14 +1,16 @@
 import logging
 
 from homeassistant.helpers.entity import Entity
-from homeassistant.components.sensor import SensorEntity
+from homeassistant.components.sensor import (
+    SensorEntity,
+    SensorDeviceClass,
+)
 
 from .const import DOMAIN
 
 from homeassistant.const import (
     ATTR_BATTERY_LEVEL,
-    DEVICE_CLASS_TEMPERATURE,
-    TEMP_CELSIUS
+    UnitOfTemperature,
 )
 
 _LOGGER = logging.getLogger(__name__)
@@ -52,7 +54,7 @@ class NestTemperatureSensor(SensorEntity):
         """Initialize the sensor."""
         self.device_id = device_id
         self.device = api
-        self._attr_native_unit_of_measurement = TEMP_CELSIUS
+        self._attr_native_unit_of_measurement = UnitOfTemperature.CELSIUS
         self._attr_name = \
                 self.device.device_data[self.device_id]['name']
         self._attr_native_value = \
@@ -65,7 +67,7 @@ class NestTemperatureSensor(SensorEntity):
     @property
     def device_class(self):
         """Return the device class of this entity."""
-        return DEVICE_CLASS_TEMPERATURE
+        return SensorDeviceClass.TEMPERATURE
 
     def update(self):
         """Get the latest data from the DHT and updates the states."""
